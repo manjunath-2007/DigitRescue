@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Restoration Studio — DigitRescue{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1 class="page-title">Restoration Studio</h1>
+  <p class="lead">
+    Upload a handwritten digit image to compare classical OpenCV filtering against blind autoencoder restoration using the trained CNN classifier.
+  </p>
+</header>
+
+<section class="card" aria-label="Upload and restoration controls">
+  <form id="restore-form" class="studio-controls" novalidate>
+    <div>
+      <div
+        id="dropzone"
+        class="dropzone"
+        tabindex="0"
+        role="button"
+        aria-controls="digit-file-input"
+        aria-label="Upload handwritten digit image. Drag and drop or press Enter to browse."
+      >
+        <div id="dropzone-empty">
+          <p class="dropzone-title">Drop a PNG, JPG, or JPEG digit image here</p>
+          <p class="dropzone-hint">Maximum file size: 5 MB. 28x28 MNIST-style images pass through unchanged apart from scaling.</p>
+          <label for="digit-file-input" class="btn btn-secondary">Choose Image</label>
+        </div>
+
+        <div id="upload-preview-wrap" class="upload-preview-wrap" hidden>
+          <div class="upload-preview-box">
+            <img id="upload-preview-img" class="pixel-art" src="" alt="Preview of uploaded handwritten digit">
+          </div>
+          <p id="selected-file-name" class="file-selected" aria-live="polite">No file selected.</p>
+          <div class="upload-preview-actions">
+            <button type="button" id="change-image-btn" class="btn btn-secondary btn-sm">Change Image</button>
+            <button type="button" id="remove-image-btn" class="btn btn-text btn-sm">Remove</button>
+          </div>
+        </div>
+
+        <input
+          id="digit-file-input"
+          name="image"
+          type="file"
+          class="file-input-hidden"
+          accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+        >
+      </div>
+    </div>
+
+    <div class="form-stack">
+      <div>
+        <label class="form-label" for="damage-type-select">Damage type</label>
+        <select id="damage-type-select" name="damage_type" class="form-select">
+          {% for opt in damage_options %}
+          <option value="{{ opt.value }}" data-filter="{{ opt.filter }}">{{ opt.label }}</option>
+          {% endfor %}
+        </select>
+        <p class="form-help" id="filter-description">
+          Classical branch: {{ damage_options[0].filter }}. The denoising autoencoder never sees this selection.
+        </p>
+      </div>
+
+      <div>
+        <label class="checkbox-row" for="synthetic-damage-checkbox">
+          <input id="synthetic-damage-checkbox" name="add_synthetic_damage" type="checkbox">
+          <span>
+            <strong>Add synthetic damage first</strong><br>
+            <span class="step-text">Adds extra artificial damage to the uploaded image using the training notebook parameters before restoration. Leave unchecked if your image is already noisy or degraded.</span>
+          </span>
+        </label>
+      </div>
+
+      <div>
+        <button id="run-restore-btn" type="submit" class="btn btn-primary" disabled>
+          Run Restoration &amp; Recognition
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <div id="loading-banner" class="status-banner status-loading" role="status" aria-live="polite" hidden>
+    <span class="spinner" aria-hidden="true"></span>
+    <span>Running OpenCV preprocessing, autoencoder restoration, and CNN classification...</span>
+  </div>
+
+  <div id="error-banner" class="status-banner status-error" role="alert" hidden></div>
+</section>
+
+<section id="results-section" class="results-section" aria-labelledby="results-heading" hidden>
+  <div class="results-meta">
+    <div>
+      <h2 class="section-title" id="results-heading">Comparison Results</h2>
+      <p id="pipeline-summary" class="section-subtitle"></p>
+    </div>
+    <a id="download-restored-btn" class="btn btn-primary" href="#" download>
+      Download Restored PNG
+    </a>
+  </div>
+
+  <div class="comparison-row">
+    <article class="result-card" id="card-original">
+      <h3 class="result-card-title">Original Input</h3>
+      <div class="result-image-box">
+        <img id="img-original" class="pixel-art" src="" alt="Normalized 28x28 original digit input">
+      </div>
+      <div class="prediction-block">
+        <div class="prediction-row">
+          <span class="prediction-digit">Digit <span id="digit-original">-</span></span>
+          <span class="prediction-confidence">Model confidence: <span id="conf-original">-</span>%</span>
+        </div>
+        <p class="confidence-note">Model confidence is single-image softmax probability, not test accuracy.</p>
+        <ul id="top3-original" class="top3-list" aria-label="Top 3 probabilities for original input"></ul>
+      </div>
+    </article>
+
+    <article class="result-card" id="card-preprocessed">
+      <h3 class="result-card-title">Classically Preprocessed</h3>
+      <div class="result-image-box">
+        <img id="img-preprocessed" class="pixel-art" src="" alt="Classically filtered 28x28 digit">
+      </div>
+      <div class="prediction-block">
+        <div class="prediction-row">
+          <span class="prediction-digit">Digit <span id="digit-preprocessed">-</span></span>
+          <span class="prediction-confidence">Model confidence: <span id="conf-preprocessed">-</span>%</span>
+        </div>
+        <p class="confidence-note">Model confidence is single-image softmax probability, not test accuracy.</p>
+        <ul id="top3-preprocessed" class="top3-list" aria-label="Top 3 probabilities for classically preprocessed image"></ul>
+      </div>
+    </article>
+
+    <article class="result-card result-card-accent" id="card-restored">
+      <h3 class="result-card-title">AI-Restored (Autoencoder)</h3>
+      <div class="result-image-box">
+        <img id="img-restored" class="pixel-art" src="" alt="Autoencoder AI-restored 28x28 digit">
+      </div>
+      <div class="prediction-block">
+        <div class="prediction-row">
+          <span class="prediction-digit">Digit <span id="digit-restored">-</span></span>
+          <span class="prediction-confidence">Model confidence: <span id="conf-restored">-</span>%</span>
+        </div>
+        <p class="confidence-note">Model confidence is single-image softmax probability, not test accuracy.</p>
+        <ul id="top3-restored" class="top3-list" aria-label="Top 3 probabilities for AI-restored image"></ul>
+      </div>
+    </article>
+  </div>
+</section>
+{% endblock %}

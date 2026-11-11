@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}About — DigitRescue{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1 class="page-title">About DigitRescue</h1>
+  <p class="lead">
+    DigitRescue is an experimental computer vision system for restoring degraded handwritten digits prior to optical classification.
+  </p>
+</header>
+
+<div class="about-grid">
+  <article class="card">
+    <h2 class="section-title">Problem Statement</h2>
+    <p class="step-text">
+      Digit classifiers trained on clean scans lose accuracy quickly when inputs suffer from sensor noise, ink fading, motion or focus blur, salt-and-pepper artifacts, or missing stroke segments. Single classical filters help only specific noise types and fail on structural damage such as erased strokes.
+    </p>
+  </article>
+
+  <article class="card">
+    <h2 class="section-title">Objectives</h2>
+    <p class="step-text">
+      Build a single blind restoration model that cleans five distinct corruption types without knowing which degradation occurred, compare its visual PSNR and downstream CNN accuracy against targeted OpenCV filters, and expose the workflow through an inspectable web interface.
+    </p>
+  </article>
+
+  <article class="card">
+    <h2 class="section-title">Methodology</h2>
+    <p class="step-text">
+      A Conv2D classifier is trained on clean 28x28 MNIST digits. Separately, a symmetric Conv2D denoising autoencoder with BatchNormalization is trained on 270,000 corrupted-to-clean image pairs (54,000 training digits across five corruptions) using a 6,000-image training-set validation split, keeping all 10,000 MNIST test images strictly held out for final evaluation.
+    </p>
+  </article>
+
+  <article class="card">
+    <h2 class="section-title">Technology Stack</h2>
+    <ul class="stack-list">
+      <li><strong>Deep Learning:</strong> TensorFlow / Keras 2.21 (.keras Conv2D CNN and Autoencoder)</li>
+      <li><strong>Image Processing:</strong> OpenCV, NumPy, SciPy</li>
+      <li><strong>Web Backend:</strong> Python 3.13, Flask</li>
+      <li><strong>Frontend:</strong> HTML5, CSS3, vanilla JavaScript, self-hosted Inter font, local Chart.js</li>
+    </ul>
+  </article>
+
+  <article class="card">
+    <h2 class="section-title">Applications</h2>
+    <p class="step-text">
+      Pre-cleaning scanned postal codes, archival handwritten ledgers, degraded receipt or check amounts, and low-contrast whiteboard or camera-captured numeric entries before OCR recognition.
+    </p>
+  </article>
+
+  <article class="card">
+    <h2 class="section-title">Future Scope</h2>
+    <p class="step-text">
+      Expanding beyond isolated 28x28 single digits to multi-digit sequence segmentation, higher-resolution grayscale documents, and real-world paper texture augmentation during autoencoder training.
+    </p>
+  </article>
+</div>
+{% endblock %}

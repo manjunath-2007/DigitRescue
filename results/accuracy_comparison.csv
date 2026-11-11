@@ -1,0 +1,6 @@
+Corruption,Noisy Accuracy (%),Preprocessed Accuracy (%),AI Restored Accuracy (%)
+gaussian,85.1,96.65,98.14
+salt_pepper,88.94999999999999,98.11,98.75
+blur,97.78,98.32,99.00999999999999
+fading,98.36,99.06,99.06
+erasure,84.96000000000001,84.97,98.13

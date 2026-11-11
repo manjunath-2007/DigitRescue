@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.py[cod]
+uploads/
+.env
+.pytest_cache/
+.ipynb_checkpoints/
+.qodo/
+backups/
+phase5_results/
+/digitrescue_cnn.keras
+/digitrescue_autoencoder.keras
+/notebooks/
+*.tmp
+*.bak
+*.zip

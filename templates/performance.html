@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Model Performance — DigitRescue{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1 class="page-title">Model Performance</h1>
+  <p class="lead">
+    Evaluation metrics read exclusively from CSV records in <code>results/</code> on the held-out MNIST test set ({{ perf.test_images }} test images). Missing records are marked "Not recorded".
+  </p>
+</header>
+
+<section class="kpi-strip" aria-label="Summary metrics">
+  <article class="card">
+    <p class="kpi-label">Held-Out Clean CNN Accuracy</p>
+    <p class="kpi-value">
+      {% if perf.clean_accuracy == "Not recorded" %}
+        <span class="not-recorded">Not recorded</span>
+      {% else %}
+        {{ perf.clean_accuracy }}%
+      {% endif %}
+    </p>
+  </article>
+  <article class="card">
+    <p class="kpi-label">Test-Set Size</p>
+    <p class="kpi-value">
+      {% if perf.test_images == "Not recorded" %}
+        <span class="not-recorded">Not recorded</span>
+      {% else %}
+        {{ perf.test_images }} images
+      {% endif %}
+    </p>
+  </article>
+  <article class="card">
+    <p class="kpi-label">Autoencoder Final Validation Loss (BCE)</p>
+    <p class="kpi-value">
+      {% if perf.ae_history %}
+        {{ perf.ae_history[-1].val_loss }}
+      {% else %}
+        <span class="not-recorded">Not recorded</span>
+      {% endif %}
+    </p>
+  </article>
+</section>
+
+<section class="section card" aria-labelledby="acc-heading">
+  <h2 class="section-title" id="acc-heading">Classification Accuracy Comparison (%)</h2>
+  <p class="section-subtitle">
+    Evaluated across {{ perf.test_images }} held-out MNIST test images per corruption type (Noisy vs. Classical Preprocessing vs. AI-Restored).
+  </p>
+  {% if perf.accuracy_rows %}
+  <div class="perf-pair">
+    <div class="chart-wrap">
+      <canvas id="accuracy-chart" aria-label="Bar chart of classification accuracy across five corruption types"></canvas>
+    </div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Noise Type</th>
+            <th class="num">Noisy (%)</th>
+            <th class="num">Preprocessed (%)</th>
+            <th class="num">AI Restored (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in perf.accuracy_rows %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td class="num">{{ row.noisy }}</td>
+            <td class="num">{{ row.preprocessed }}</td>
+            <td class="num"><strong>{{ row.restored }}</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <p class="not-recorded">Not recorded</p>
+  {% endif %}
+</section>
+
+<section class="section card" aria-labelledby="psnr-heading">
+  <h2 class="section-title" id="psnr-heading">Image Quality Comparison (PSNR in dB)</h2>
+  <p class="section-subtitle">
+    Peak Signal-to-Noise Ratio measured against clean MNIST ground truth over {{ perf.test_images }} test images per corruption type.
+  </p>
+  {% if perf.psnr_rows %}
+  <div class="perf-pair">
+    <div class="chart-wrap">
+      <canvas id="psnr-chart" aria-label="Bar chart of noisy vs restored PSNR in dB"></canvas>
+    </div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Noise Type</th>
+            <th class="num">Noisy PSNR (dB)</th>
+            <th class="num">Restored PSNR (dB)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in perf.psnr_rows %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td class="num">{{ row.noisy_psnr }}</td>
+            <td class="num"><strong>{{ row.restored_psnr }}</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <p class="not-recorded">Not recorded</p>
+  {% endif %}
+</section>
+
+<section class="section card" aria-labelledby="ae-loss-heading">
+  <h2 class="section-title" id="ae-loss-heading">Autoencoder Training &amp; Validation Loss</h2>
+  <p class="section-subtitle">
+    Binary cross-entropy loss recorded across 20 epochs (54,000 training / 6,000 validation split from MNIST training set).
+  </p>
+  {% if perf.ae_history %}
+  <div class="perf-pair">
+    <div class="chart-wrap">
+      <canvas id="loss-chart" aria-label="Line chart of autoencoder training and validation loss"></canvas>
+    </div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Epoch</th>
+            <th class="num">Train Loss</th>
+            <th class="num">Val Loss</th>
+            <th class="num">Train MAE</th>
+            <th class="num">Val MAE</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in perf.ae_history %}
+          <tr>
+            <td>{{ row.epoch }}</td>
+            <td class="num">{{ row.loss }}</td>
+            <td class="num">{{ row.val_loss }}</td>
+            <td class="num">{{ row.mae }}</td>
+            <td class="num">{{ row.val_mae }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <p class="not-recorded">Not recorded</p>
+  {% endif %}
+</section>
+
+<section class="section card" aria-labelledby="cnn-loss-heading">
+  <h2 class="section-title" id="cnn-loss-heading">CNN Training &amp; Validation Loss</h2>
+  {% if perf.cnn_history %}
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Epoch</th>
+          <th class="num">Train Loss</th>
+          <th class="num">Val Loss</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in perf.cnn_history %}
+        <tr>
+          <td>{{ row.epoch }}</td>
+          <td class="num">{{ row.loss }}</td>
+          <td class="num">{{ row.val_loss }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="not-recorded">Not recorded (no CNN training history CSV is present in <code>results/</code>).</p>
+  {% endif %}
+</section>
+
+<script id="perf-json" type="application/json">{{ perf | tojson }}</script>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}" defer></script>
+{% endblock %}

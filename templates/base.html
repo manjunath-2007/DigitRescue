@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}DigitRescue{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="{{ url_for('index') }}">DigitRescue</a>
+      <button
+        type="button"
+        class="nav-toggle"
+        id="nav-toggle"
+        aria-expanded="false"
+        aria-controls="primary-nav"
+      >Menu</button>
+      <nav class="site-nav" id="primary-nav" aria-label="Primary navigation">
+        <a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+        <a class="nav-link {% if active_page == 'restoration' %}active{% endif %}" href="{{ url_for('restoration') }}">Restoration Studio</a>
+        <a class="nav-link {% if active_page == 'performance' %}active{% endif %}" href="{{ url_for('performance') }}">Model Performance</a>
+        <a class="nav-link {% if active_page == 'how_it_works' %}active{% endif %}" href="{{ url_for('how_it_works') }}">How It Works</a>
+        <a class="nav-link {% if active_page == 'about' %}active{% endif %}" href="{{ url_for('about') }}">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>DigitRescue — Handwritten Digit Restoration &amp; Recognition</span>
+      <span>CNN Classifier + Conv2D Denoising Autoencoder (28x28 MNIST)</span>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+  {% block scripts_extra %}{% endblock %}
+</body>
+</html>

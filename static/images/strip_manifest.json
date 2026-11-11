@@ -1,0 +1,67 @@
+[
+  {
+    "noise": "gaussian",
+    "noise_label": "Gaussian noise",
+    "mnist_test_index": 0,
+    "true_digit": 7,
+    "clean_img": "images/strip_0_gaussian_clean.png",
+    "damaged_img": "images/strip_0_gaussian_damaged.png",
+    "restored_img": "images/strip_0_gaussian_restored.png",
+    "damaged_pred": 7,
+    "damaged_conf": 96.46,
+    "restored_pred": 7,
+    "restored_conf": 100.0
+  },
+  {
+    "noise": "salt_pepper",
+    "noise_label": "Salt-and-pepper",
+    "mnist_test_index": 1,
+    "true_digit": 2,
+    "clean_img": "images/strip_1_salt_pepper_clean.png",
+    "damaged_img": "images/strip_1_salt_pepper_damaged.png",
+    "restored_img": "images/strip_1_salt_pepper_restored.png",
+    "damaged_pred": 2,
+    "damaged_conf": 99.99,
+    "restored_pred": 2,
+    "restored_conf": 100.0
+  },
+  {
+    "noise": "blur",
+    "noise_label": "Blur",
+    "mnist_test_index": 18,
+    "true_digit": 3,
+    "clean_img": "images/strip_2_blur_clean.png",
+    "damaged_img": "images/strip_2_blur_damaged.png",
+    "restored_img": "images/strip_2_blur_restored.png",
+    "damaged_pred": 3,
+    "damaged_conf": 93.34,
+    "restored_pred": 3,
+    "restored_conf": 98.1
+  },
+  {
+    "noise": "fading",
+    "noise_label": "Fading",
+    "mnist_test_index": 15,
+    "true_digit": 5,
+    "clean_img": "images/strip_3_fading_clean.png",
+    "damaged_img": "images/strip_3_fading_damaged.png",
+    "restored_img": "images/strip_3_fading_restored.png",
+    "damaged_pred": 5,
+    "damaged_conf": 76.3,
+    "restored_pred": 5,
+    "restored_conf": 100.0
+  },
+  {
+    "noise": "erasure",
+    "noise_label": "Erasure",
+    "mnist_test_index": 61,
+    "true_digit": 8,
+    "clean_img": "images/strip_4_erasure_clean.png",
+    "damaged_img": "images/strip_4_erasure_damaged.png",
+    "restored_img": "images/strip_4_erasure_restored.png",
+    "damaged_pred": 2,
+    "damaged_conf": 69.92,
+    "restored_pred": 8,
+    "restored_conf": 100.0
+  }
+]

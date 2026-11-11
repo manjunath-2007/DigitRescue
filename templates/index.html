@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}DigitRescue — Restore. Recognize. Recover.{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">Restore. Recognize. Recover.</h1>
+  <p class="lead">
+    DigitRescue removes noise, blur, fading, and stroke erasure from degraded 28x28 handwritten digits using a convolutional denoising autoencoder. A paired CNN classifier evaluates the original, classically filtered, and AI-restored digits side by side.
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="{{ url_for('restoration') }}">Start Restoration</a>
+    <a class="btn btn-secondary" href="{{ url_for('performance') }}">View Test Metrics</a>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="strip-heading">
+  <h2 class="section-title" id="strip-heading">Before &amp; After on Real MNIST Test Digits</h2>
+  <p class="section-subtitle">
+    Generated directly from the trained autoencoder and CNN on held-out MNIST test samples across all five corruption types.
+  </p>
+
+  <div class="strip-grid">
+    {% for item in strip_items %}
+    <article class="strip-card card-interactive">
+      <div class="strip-card-label">{{ item.noise_label }} (Digit {{ item.true_digit }})</div>
+      <div class="strip-pair">
+        <div class="strip-thumb">
+          <img
+            class="pixel-art"
+            src="{{ url_for('static', filename=item.damaged_img) }}"
+            alt="Damaged MNIST digit {{ item.true_digit }} with {{ item.noise_label }}"
+          >
+          <span class="strip-caption">Damaged: {{ item.damaged_pred }} ({{ item.damaged_conf }}%)</span>
+        </div>
+        <div class="strip-thumb">
+          <img
+            class="pixel-art"
+            src="{{ url_for('static', filename=item.restored_img) }}"
+            alt="Autoencoder restored MNIST digit {{ item.true_digit }} from {{ item.noise_label }}"
+          >
+          <span class="strip-caption">Restored: {{ item.restored_pred }} ({{ item.restored_conf }}%)</span>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section" aria-labelledby="summary-heading">
+  <h2 class="section-title" id="summary-heading">How It Works</h2>
+  <div class="steps-grid">
+    <article class="card">
+      <span class="step-num">Step 1</span>
+      <h3 class="step-title">Normalize Input</h3>
+      <p class="step-text">
+        Uploaded PNG or JPEG images are decoded with OpenCV, converted to grayscale, inverted if dark-on-light, and formatted to 28x28 white-on-black pixels.
+      </p>
+    </article>
+    <article class="card">
+      <span class="step-num">Step 2</span>
+      <h3 class="step-title">Dual Restoration Branches</h3>
+      <p class="step-text">
+        A selected classical OpenCV filter runs as a baseline while the blind denoising autoencoder reconstructs clean strokes directly from the damaged input.
+      </p>
+    </article>
+    <article class="card">
+      <span class="step-num">Step 3</span>
+      <h3 class="step-title">CNN Recognition</h3>
+      <p class="step-text">
+        The same trained CNN classifies the original, classically preprocessed, and AI-restored digits, reporting top-3 softmax probabilities for each.
+      </p>
+    </article>
+  </div>
+</section>
+{% endblock %}
